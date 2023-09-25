@@ -1,0 +1,33 @@
+{
+  "name": "@thirdmadman/in-memory-db",
+  "version": "1.0.0",
+  "description": "Simple implementation of In-memory DB",
+  "files": [
+    "lib/**/*"
+  ],
+  "main": "./lib/index.js",
+  "scripts": {
+    "build": "rm -rf ./lib/* & tsc"
+  },
+  "release": {
+    "branches": [
+      "master"
+    ]
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/thirdmadman/in-memory-db.git"
+  },
+  "author": "thirmadman",
+  "license": "GPL-3.0-or-later",
+  "bugs": {
+    "url": "https://github.com/thirdmadman/in-memory-db/issues"
+  },
+  "homepage": "https://github.com/thirdmadman/in-memory-db#readme",
+  "devDependencies": {
+    "typescript": "^5.2.2"
+  }
+}
