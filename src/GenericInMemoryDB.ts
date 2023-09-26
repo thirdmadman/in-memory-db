@@ -1,14 +1,6 @@
-interface AbstractEntityFieldsRestriction {
-  [key: string]: number | string | boolean | null;
+export type AbstractEntity = {
+  id: string;
 }
-
-export interface AbstractEntityBase {
-  id: string | number;
-}
-
-export interface AbstractEntity
-  extends AbstractEntityFieldsRestriction,
-    AbstractEntityBase {}
 
 export interface AbstractDBStoreObject {
   [key: string]: Array<AbstractEntity>;
@@ -16,36 +8,25 @@ export interface AbstractDBStoreObject {
 
 export class GenericInMemoryDB<T extends AbstractDBStoreObject> {
   private db: T;
-  private prevId = 0;
-  private newIdGenerator: (prevId: string | number) => string | number = (
-    prevId: number,
-  ) => prevId + 1;
+  private prevId: string | null = null;
+  private idGenerator: (prevId: string | null) => string;
 
-  constructor(
-    db: T,
-    newIdGenerator: (prevId: string | number) => string | number = null,
-  ) {
+  constructor(db: T, idGenerator: (prevId: string | null) => string = (prevId) => prevId === null ? String(0) : String(parseInt(prevId, 10)  + 1)) {
     this.db = JSON.parse(JSON.stringify(db));
-    if (newIdGenerator) {
-      this.newIdGenerator = newIdGenerator;
-    }
+    this.idGenerator = idGenerator;
+
   }
 
-  createInTable<TEntity extends AbstractEntity>(
-    tableName: keyof T,
-    entity: TEntity,
-  ) {
-    const generatedId = this.newIdGenerator(this.prevId);
-    const newEntity: TEntity = { ...entity, id: generatedId };
+  createInTable<TEntity extends AbstractEntity>(tableName: keyof T, entity: TEntity) {
+    const generatedId = this.idGenerator(this.prevId);
+    this.prevId = generatedId;
+    const newEntity: TEntity = {...entity, id: generatedId};
     this.db[tableName].push(newEntity);
     return newEntity;
   }
 
-  findOneInTable<TEntity extends AbstractEntity>(
-    tableName: keyof T,
-    id: string,
-  ) {
-    let foundEntity: TEntity = null;
+  findOneInTable<TEntity extends AbstractEntity>(tableName: keyof T, id: string) {
+    let foundEntity: TEntity | null = null;
     if (this.db[tableName] && this.db[tableName].length > 0) {
       for (let i = 0; i < this.db[tableName].length; i++) {
         if (this.db[tableName][i].id === id) {
@@ -54,7 +35,7 @@ export class GenericInMemoryDB<T extends AbstractDBStoreObject> {
         }
       }
       if (foundEntity) {
-        return { ...foundEntity };
+        return {...foundEntity};
       }
     }
     return null;
@@ -66,7 +47,7 @@ export class GenericInMemoryDB<T extends AbstractDBStoreObject> {
       for (let i = 0; this.db[tableName].length > i; i += 1) {
         const entity = this.db[tableName][i];
         if (entity) {
-          entities.push({ ...(entity as TEntity) });
+          entities.push({...(entity as TEntity)});
         }
       }
       return entities;
@@ -74,11 +55,7 @@ export class GenericInMemoryDB<T extends AbstractDBStoreObject> {
     return Array<TEntity>();
   }
 
-  updateInTable<TEntity extends AbstractEntity>(
-    tableName: keyof T,
-    id: string,
-    entity: TEntity,
-  ) {
+  updateInTable<TEntity extends AbstractEntity>(tableName: keyof T, id: string, entity: TEntity) {
     const table = this.db[tableName];
 
     let index = -1;
@@ -91,17 +68,14 @@ export class GenericInMemoryDB<T extends AbstractDBStoreObject> {
     }
 
     if (index > -1) {
-      const newEntity: TEntity = { ...entity, id };
+      const newEntity: TEntity = {...entity, id};
       this.db[tableName][index] = newEntity;
-      return { ...table[index] } as TEntity;
+      return {...table[index]} as TEntity;
     }
     return null;
   }
 
-  deleteInTable<TEntity extends AbstractEntity>(
-    tableName: keyof T,
-    id: string,
-  ) {
+  deleteInTable<TEntity extends AbstractEntity>(tableName: keyof T, id: string) {
     let index = -1;
 
     for (let i = 0; i < this.db[tableName].length; i++) {
@@ -112,7 +86,7 @@ export class GenericInMemoryDB<T extends AbstractDBStoreObject> {
     }
 
     if (index > -1) {
-      const oldEntity: TEntity = { ...this.db[tableName][index] } as TEntity;
+      const oldEntity: TEntity = {...this.db[tableName][index]} as TEntity;
       this.db[tableName].splice(index, 1);
       return oldEntity;
     }
