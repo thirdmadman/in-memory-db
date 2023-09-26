@@ -61,7 +61,7 @@ export class GenericInMemoryDB<T extends AbstractDBStoreObject> {
     let index = -1;
 
     for (let i = 0; i < this.db[tableName].length; i++) {
-      if (this.db[tableName][index].id === id) {
+      if (this.db[tableName][i].id === id) {
         index = i;
         break;
       }
