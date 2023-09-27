@@ -1,6 +1,6 @@
 {
   "name": "@thirdmadman/in-memory-db",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Simple implementation of In-memory DB",
   "files": [
     "lib/**/*"
@@ -9,7 +9,8 @@
   "main": "./lib/index.js",
   "scripts": {
     "build": "rm -rf ./lib/* & tsc",
-    "test": "jest"
+    "test": "jest",
+    "publish": "npm publish --access public"
   },
   "release": {
     "branches": [
